@@ -21,7 +21,6 @@ enum UnitType {
   }
 }
 
-/// A Unit represents a CSS unit
 enum Unit {
   //ch,
   em(UnitType.length),
@@ -45,7 +44,7 @@ abstract class Dimension {
 
   Dimension(this.value, this.unit, UnitType dimensionUnitType)
       : assert(dimensionUnitType.matches(unit.unitType),
-  "This Dimension was given a Unit that isn't specified.");
+            "This Dimension was given a Unit that isn't specified.");
 }
 
 /// This dimension takes a value with a length unit such
