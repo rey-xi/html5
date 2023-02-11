@@ -3,7 +3,8 @@ import 'package:html/dom.dart' as dom;
 
 import '../core/html5.dart';
 
-/// An [ReactElement] is a [StyledElement] that takes user gestures (e.g. tap).
+/// An [ReactElement] is a [StyledElement] that takes user
+/// gestures (e.g. tap).
 class ReactElement extends StyledElement {
   String? href;
 
@@ -22,10 +23,8 @@ enum Gesture {
   tap,
 }
 
-StyledElement parseReactElement(
-  dom.Element element,
-  List<StyledElement> children,
-) {
+StyledElement parseReactElement(dom.Element element,
+    List<StyledElement> children,) {
   switch (element.localName) {
     case "a":
       if (element.attributes.containsKey('href')) {
@@ -41,7 +40,6 @@ StyledElement parseReactElement(
           elementId: element.id,
         );
       }
-      // When <a> tag have no href, it must be non clickable and without decoration.
       return StyledElement(
         name: element.localName!,
         children: children,
@@ -50,7 +48,7 @@ StyledElement parseReactElement(
         elementId: element.id,
       );
 
-    /// will never be called, just to suppress missing return warning
+  /// will never be called, just to suppress missing return warning
     default:
       return ReactElement(
         name: element.localName!,

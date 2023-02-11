@@ -58,7 +58,8 @@ class CSS3 {
   /// Default: Theme.of(context).style.textTheme.body1.fontFamily
   String? fontFamily;
 
-  /// The list of font families to fall back on when a glyph cannot be found in default font family.
+  /// The list of font families to fall back
+  /// on when a glyph cannot be found in default font family.
   ///
   /// Inherited: yes,
   /// Default: null
@@ -166,7 +167,6 @@ class CSS3 {
   ///
   /// Inherited: no,
   /// Default: 1.0 (specified by font size)
-  // TODO(Sub6Resources): Possibly base this more closely on the CSS attribute.
   double? textDecorationThickness;
 
   /// CSS attribute "`text-shadow`"
@@ -209,7 +209,6 @@ class CSS3 {
   /// Default: Unspecified (null),
   LineHeight? lineHeight;
 
-  //TODO modify these to match CSS styles
   String? before;
   String? after;
   Border? border;
@@ -346,9 +345,7 @@ class CSS3 {
       listStyleType: other.listStyleType,
       listStylePosition: other.listStylePosition,
       padding: other.padding,
-      //TODO merge EdgeInsets
       margin: other.margin,
-      //TODO merge Margins
       marker: other.marker,
       textAlign: other.textAlign,
       textDecoration: other.textDecoration,
@@ -360,11 +357,9 @@ class CSS3 {
       whiteSpace: other.whiteSpace,
       width: other.width,
       wordSpacing: other.wordSpacing,
-
       before: other.before,
       after: other.after,
       border: other.border,
-      //TODO merge border
       alignment: other.alignment,
       markerContent: other.markerContent,
       maxLines: other.maxLines,

@@ -1,8 +1,9 @@
 import '../core/html5.dart';
 
-/// The [Width] class takes in a value and units, and defaults to px if no
-/// units are provided. A helper constructor, [Width.auto] constructor is
-/// provided for convenience.
+/// The [Width] class takes in a value and units, and defaults
+/// to px if no units are provided. A helper constructor,
+/// [Width.auto] constructor is provided for convenience.
+/// ...
 class Width extends AutoOrLengthOrPercent {
   Width(super.value, [super.unit = Unit.px])
       : assert(value >= 0, 'Width value must be non-negative');

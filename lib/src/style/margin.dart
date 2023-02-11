@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../style/length.dart';
 
 class Margin extends AutoOrLengthOrPercent {
@@ -17,31 +18,27 @@ class Margins {
 
   const Margins({this.left, this.right, this.top, this.bottom});
 
-  /// Auto margins already have a "value" of zero so can be considered collapsed.
+  /// Auto margins already have a "value" of zero so can be
+  /// considered collapsed.
   Margins collapse() => Margins(
-    left: left?.unit == Unit.auto ? left : Margin(0, Unit.px),
-    right: right?.unit == Unit.auto ? right : Margin(0, Unit.px),
-    top: top?.unit == Unit.auto ? top : Margin(0, Unit.px),
-    bottom: bottom?.unit == Unit.auto ? bottom : Margin(0, Unit.px),
-  );
+        left: left?.unit == Unit.auto ? left : Margin(0, Unit.px),
+        right: right?.unit == Unit.auto ? right : Margin(0, Unit.px),
+        top: top?.unit == Unit.auto ? top : Margin(0, Unit.px),
+        bottom: bottom?.unit == Unit.auto ? bottom : Margin(0, Unit.px),
+      );
 
-  Margins copyWith(
-      {Margin? left, Margin? right, Margin? top, Margin? bottom}) =>
-      Margins(
+  Margins copyWith({Margin? left, Margin? right, Margin? top, Margin? bottom}) => Margins(
         left: left ?? this.left,
         right: right ?? this.right,
         top: top ?? this.top,
         bottom: bottom ?? this.bottom,
       );
 
-  Margins copyWithEdge(
-      {double? left, double? right, double? top, double? bottom}) =>
-      Margins(
+  Margins copyWithEdge({double? left, double? right, double? top, double? bottom}) => Margins(
         left: left != null ? Margin(left, this.left?.unit) : this.left,
         right: right != null ? Margin(right, this.right?.unit) : this.right,
         top: top != null ? Margin(top, this.top?.unit) : this.top,
-        bottom:
-        bottom != null ? Margin(bottom, this.bottom?.unit) : this.bottom,
+        bottom: bottom != null ? Margin(bottom, this.bottom?.unit) : this.bottom,
       );
 
   // bool get isAutoHorizontal => (left is MarginAuto) || (right is MarginAuto);
@@ -57,8 +54,7 @@ class Margins {
         bottom = Margin(value, unit);
 
   /// Analogous to [EdgeInsets.only]
-  Margins.only(
-      {double? left, double? right, double? top, double? bottom, Unit? unit})
+  Margins.only({double? left, double? right, double? top, double? bottom, Unit? unit})
       : left = Margin(left ?? 0, unit),
         right = Margin(right ?? 0, unit),
         top = Margin(top ?? 0, unit),

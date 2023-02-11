@@ -18,31 +18,37 @@ export '../tags/styled_element.dart';
 export 'css3.dart';
 
 class HTML5 extends StatefulWidget {
-  /// The `Html` widget takes HTML as input and displays a RichText
-  /// tree of the parsed HTML content.
+  //...
+  /// The `Html` widget takes HTML as input and displays
+  /// a RichText tree of the parsed HTML content.
   ///
   /// **Attributes**
-  /// **data** *required* takes in a String of HTML data (required only for `Html` constructor).
-  /// **document** *required* takes in a Document of HTML data (required only for `Html.fromDom` constructor).
+  /// **data** *required* takes in a String of HTML data
+  /// (required only for `Html` constructor).  **document**
+  /// *required* takes in a Document of HTML data (required
+  /// only for `Html.fromDom` constructor).
   ///
-  /// **onLinkTap** This function is called whenever a link (`<a href>`)
-  /// is tapped.
-  /// **customRender** This function allows you to return your own widgets
-  /// for existing or custom HTML tags.
-  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/All-About-customRender) for more info.
+  /// **onLinkTap** This function is called whenever a link
+  /// (`<a href>`) is tapped.
+  /// **customRender** This function allows you to return
+  /// your own widgets for existing or custom HTML tags.
+  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/All-About-customRender)
+  /// for more info.
   ///
-  /// **onImageError** This is called whenever an image fails to load or
-  /// display on the page.
+  /// **onImageError** This is called whenever an image fails
+  /// to load or display on the page.
   ///
-  /// **shrinkWrap** This makes the Html widget take up only the width it
-  /// needs and no more.
+  /// **shrinkWrap** This makes the Html widget take up only
+  /// the width it needs and no more.
   ///
   /// **onImageTap** This is called whenever an image is tapped.
   ///
-  /// **tagsList** Tag names in this array will be the only tags rendered. By default all supported HTML tags are rendered.
+  /// **tagsList** Tag names in this array will be the only tags
+  /// rendered. By default all supported HTML tags are rendered.
   ///
   /// **style** Pass in the style information for the Html here.
-  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/Style) for more info.
+  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/Style)
+  /// for more info.
   HTML5({
     Key? key,
     GlobalKey? anchorKey,
@@ -98,52 +104,63 @@ class HTML5 extends StatefulWidget {
         _anchorKey = anchorKey ?? GlobalKey(),
         super(key: key);
 
-  /// A unique key for this Html widget to ensure uniqueness of anchors
+  /// A unique key for this Html widget to ensure uniqueness
+  /// of anchors
   final GlobalKey _anchorKey;
 
   /// The HTML data passed to the widget as a String
   final String? data;
 
-  /// The HTML data passed to the widget as a pre-processed [dom.Element]
+  /// The HTML data passed to the widget as a pre-processed
+  /// [dom.Element]
   final dom.Element? documentElement;
 
-  /// A function that defines what to do when a link is tapped
+  /// A function that defines what to do when a link is
+  /// tapped
   final OnTap? onLinkTap;
 
-  /// A function that defines what to do when an anchor link is tapped. When this value is set,
-  /// the default anchor behaviour is overwritten.
+  /// A function that defines what to do when an anchor link
+  /// is tapped. When this value is set, the default anchor
+  /// behaviour is overwritten.
   final OnTap? onAnchorTap;
 
-  /// A function that defines what to do when CSS fails to parse
+  /// A function that defines what to do when CSS fails to
+  /// parse
   final OnCssParseError? onCssParseError;
 
-  /// A function that defines what to do when an image errors
+  /// A function that defines what to do when an image
+  /// errors
   final ImageErrorListener? onImageError;
 
-  /// A parameter that should be set when the HTML widget is expected to be
-  /// flexible
+  /// A parameter that should be set when the HTML widget is
+  /// expected to be flexible
   final bool shrinkWrap;
 
   /// A function that defines what to do when an image is tapped
   final OnTap? onImageTap;
 
-  /// A list of HTML tags that are the only tags that are rendered. By default, this list is empty and all supported HTML tags are rendered.
+  /// A list of HTML tags that are the only tags that are rendered.
+  /// By default, this list is empty and all supported HTML tags
+  /// are rendered.
   final List<String> tagsList;
 
-  /// Either return a custom widget for specific node types or return null to
-  /// fallback to the default rendering.
+  /// Either return a custom widget for specific node types or
+  /// return null to fallback to the default rendering.
   final Map<CustomRenderMatcher, CustomRender> customRenders;
 
-  /// An API that allows you to override the default style for any HTML element
+  /// An API that allows you to override the default style for
+  /// any HTML element
   final Map<String, CSS3> style;
 
-  static List<String> get tags => List<String>.from(HtmlElements.styledElements)
-    ..addAll(HtmlElements.interactableElements)
-    ..addAll(HtmlElements.replacedElements)
-    ..addAll(HtmlElements.layoutElements)
-    ..addAll(HtmlElements.tableCellElements)
-    ..addAll(HtmlElements.tableDefinitionElements)
-    ..addAll(HtmlElements.externalElements);
+  static List<String> get tags {
+    return List<String>.from(HtmlElements.styledElements)
+      ..addAll(HtmlElements.interactableElements)
+      ..addAll(HtmlElements.replacedElements)
+      ..addAll(HtmlElements.layoutElements)
+      ..addAll(HtmlElements.tableCellElements)
+      ..addAll(HtmlElements.tableDefinitionElements)
+      ..addAll(HtmlElements.externalElements);
+  }
 
   @override
   State<StatefulWidget> createState() => _HTML5State();
@@ -191,36 +208,47 @@ class _HTML5State extends State<HTML5> {
 }
 
 class SelectableHtml extends StatefulWidget {
-  /// The `SelectableHtml` widget takes HTML as input and displays a RichText
-  /// tree of the parsed HTML content (which is selectable)
+  /// The `SelectableHtml` widget takes HTML as input and displays
+  /// a RichText tree of the parsed HTML content (which is selectable)
   ///
   /// **Attributes**
-  /// **data** *required* takes in a String of HTML data (required only for `Html` constructor).
-  /// **documentElement** *required* takes in a Element of HTML data (required only for `Html.fromDom` and `Html.fromElement` constructor).
+  /// **data** *required* takes in a String of HTML data (required
+  /// only for `Html` constructor). **documentElement** *required*
+  /// takes in a Element of HTML data (required only for `Html.fromDom`
+  /// and `Html.fromElement` constructor).
+  /// <br/><br/>
   ///
   /// **onLinkTap** This function is called whenever a link (`<a href>`)
   /// is tapped.
+  /// <br/><br/>
   ///
-  /// **onAnchorTap** This function is called whenever an anchor (#anchor-id)
-  /// is tapped.
+  /// **onAnchorTap** This function is called whenever an anchor
+  /// (#anchor-id)  is tapped.
+  /// <br/><br/>
   ///
-  /// **tagsList** Tag names in this array will be the only tags rendered. By default, all tags that support selectable content are rendered.
+  /// **tagsList** Tag names in this array will be the only tags rendered.
+  /// By default, all tags that support selectable content are rendered.
+  /// <br/><br/>
   ///
   /// **style** Pass in the style information for the Html here.
-  /// See [its wiki page](https://github.com/Sub6Resources/flutter_html/wiki/Style) for more info.
+  /// for more info.
+  /// <br/><br/>
   ///
   /// **PLEASE NOTE**
-  ///
   /// There are a few caveats due to Flutter [#38474](https://github.com/flutter/flutter/issues/38474):
   ///
   /// 1. The list of tags that can be rendered is significantly reduced.
-  /// Key omissions include no support for images/video/audio, table, and ul/ol because they all require widgets and `WidgetSpan`s.
+  /// Key omissions include no support for images/video/audio, table, '
+  /// and ul/ol because they all require widgets and `WidgetSpan`s.
   ///
-  /// 2. No support for `customRender`, `customImageRender`, `onImageError`, `onImageTap`, `onMathError`, and `navigationDelegateForIframe`.
+  /// 2. No support for `customRender`, `customImageRender`, `onImageError`,
+  /// `onImageTap`, `onMathError`, and `navigationDelegateForIframe`.
   ///
-  /// 3. Styling support is significantly reduced. Only text-related styling works
-  /// (e.g. bold or italic), while container related styling (e.g. borders or padding/margin)
-  /// do not work because we can't use the `ContainerSpan` class (it needs an enclosing `WidgetSpan`).
+  /// 3. Styling support is significantly reduced. Only text-related
+  /// styling works (e.g. bold or italic), while container related
+  /// styling (e.g. borders or padding/margin)  do not work because
+  /// we can't use the `ContainerSpan` class (it needs an enclosing
+  /// `WidgetSpan`).
   SelectableHtml({
     Key? key,
     GlobalKey? anchorKey,
@@ -276,46 +304,55 @@ class SelectableHtml extends StatefulWidget {
         _anchorKey = anchorKey ?? GlobalKey(),
         super(key: key);
 
-  /// A unique key for this Html widget to ensure uniqueness of anchors
+  /// A unique key for this Html widget to ensure uniqueness of
+  /// anchors
   final GlobalKey _anchorKey;
 
   /// The HTML data passed to the widget as a String
   final String? data;
 
-  /// The HTML data passed to the widget as a pre-processed [dom.Element]
+  /// The HTML data passed to the widget as a pre-processed
+  /// [dom.Element]
   final dom.Element? documentElement;
 
   /// A function that defines what to do when a link is tapped
   final OnTap? onLinkTap;
 
-  /// A function that defines what to do when an anchor link is tapped. When this value is set,
-  /// the default anchor behaviour is overwritten.
+  /// A function that defines what to do when an anchor link is
+  /// tapped. When this value is set,  the default anchor behaviour
+  /// is overwritten.
   final OnTap? onAnchorTap;
 
   /// A function that defines what to do when CSS fails to parse
   final OnCssParseError? onCssParseError;
 
-  /// A parameter that should be set when the HTML widget is expected to be
-  /// have a flexible width, that doesn't always fill its maximum width
-  /// constraints. For example, auto horizontal margins are ignored, and
-  /// block-level elements only take up the width they need.
+  /// A parameter that should be set when the HTML widget is
+  /// expected to be have a flexible width, that doesn't always
+  /// fill its maximum width constraints. For example, auto
+  /// horizontal margins are ignored, and block-level elements
+  /// only take up the width they need.
   final bool shrinkWrap;
 
-  /// A list of HTML tags that are the only tags that are rendered. By default, this list is empty and all supported HTML tags are rendered.
+  /// A list of HTML tags that are the only tags that are rendered.
+  /// By default, this list is empty and all supported HTML tags
+  /// are rendered.
   final List<String> tagsList;
 
-  /// An API that allows you to override the default style for any HTML element
+  /// An API that allows you to override the default style for
+  /// any HTML element
   final Map<String, CSS3> style;
 
-  /// Custom Selection controls allows you to override default toolbar and build custom toolbar
+  /// Custom Selection controls allows you to override default
+  /// toolbar and build custom toolbar
   /// options
   final TextSelectionControls? selectionControls;
 
-  /// Allows you to override the default scrollPhysics for [SelectableText.rich]
+  /// Allows you to override the default scrollPhysics for
+  /// [SelectableText.rich]
   final ScrollPhysics? scrollPhysics;
 
-  /// Either return a custom widget for specific node types or return null to
-  /// fallback to the default rendering.
+  /// Either return a custom widget for specific node types or
+  /// return null to fallback to the default rendering.
   final Map<CustomRenderMatcher, SelectableCustomRender> customRenders;
 
   static List<String> get tags => List<String>.from(HtmlElements.selectableElements);

@@ -15,18 +15,6 @@ import '../tags/utils.dart';
 import 'css.dart';
 import 'custom.dart';
 
-typedef OnTap = void Function(
-  String? url,
-  RenderContext context,
-  Map<String, String> attributes,
-  dom.Element? element,
-);
-
-typedef OnCssParseError = String? Function(
-  String css,
-  List<css_parser.Message> errors,
-);
-
 class HtmlParser extends StatelessWidget {
   final dom.Element htmlData;
   final OnTap? onLinkTap;
@@ -63,12 +51,18 @@ class HtmlParser extends StatelessWidget {
     this.root,
     this.selectionControls,
     this.scrollPhysics,
-  }) : internalOnAnchorTap =
-            onAnchorTap ?? (key != null ? _handleAnchorTap(key, onLinkTap) : onLinkTap);
+  }) : internalOnAnchorTap = onAnchorTap ??
+            (key != null
+                ? _handleAnchorTap(
+                    key,
+                    onLinkTap,
+                  )
+                : onLinkTap);
 
-  /// As the widget [build]s, the HTML data is processed into a tree of [StyledElement]s,
-  /// which are then parsed into an [InlineSpan] tree that is then rendered to the screen by Flutter
-  //TODO Lazy processing of data. We don't need the processing steps done every build phase unless the data has changed.
+  /// As the widget [build]s, the HTML data is processed into
+  /// a tree of [StyledElement]s,  which are then parsed into
+  /// an [InlineSpan] tree that is then rendered to the screen
+  /// by Flutter
   @override
   Widget build(BuildContext context) {
     // Lexing Step
@@ -81,10 +75,18 @@ class HtmlParser extends StatelessWidget {
     );
 
     // Styling Step
-    StyledElement styledTree = styleTree(lexedTree, htmlData, style, onCssParseError);
+    StyledElement styledTree = styleTree(
+      lexedTree,
+      htmlData,
+      style,
+      onCssParseError,
+    );
 
     // Processing Step
-    StyledElement processedTree = processTree(styledTree, MediaQuery.of(context).devicePixelRatio);
+    StyledElement processedTree = processTree(
+      styledTree,
+      MediaQuery.of(context).devicePixelRatio,
+    );
 
     // Parsing Step
     InlineSpan parsedTree = parseTree(
@@ -107,17 +109,20 @@ class HtmlParser extends StatelessWidget {
     );
   }
 
-  /// [parseHTML] converts a string of HTML to a DOM element using the dart `html` library.
+  /// [parseHTML] converts a string of HTML to a DOM element
+  /// using the dart `html` library.
   static dom.Element parseHTML(String data) {
     return html_parser.parse(data).documentElement!;
   }
 
-  /// [parseCss] converts a string of CSS to a CSS stylesheet using the dart `csslib` library.
+  /// [parseCss] converts a string of CSS to a CSS stylesheet
+  /// using the dart `csslib` library.
   static css.StyleSheet parseCss(String data) {
     return css_parser.parse(data);
   }
 
-  /// [lexDomTree] converts a DOM document to a simplified tree of [StyledElement]s.
+  /// [lexDomTree] converts a DOM document to a simplified
+  /// tree of [StyledElement]s.
   static StyledElement lexDomTree(
     dom.Element html,
     List<CustomRenderMatcher> customRenderMatchers,
@@ -145,10 +150,12 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [_recursiveLexer] is the recursive worker function for [lexDomTree].
+  /// [_recursiveLexer] is the recursive worker function
+  /// for [lexDomTree].
   ///
-  /// It runs the parse functions of every type of
-  /// element and returns a [StyledElement] tree representing the element.
+  /// It runs the parse functions of every type of element
+  /// and returns a [StyledElement] tree representing the
+  /// element.
   static StyledElement _recursiveLexer(
     dom.Node node,
     List<CustomRenderMatcher> customRenderMatchers,
@@ -157,7 +164,6 @@ class HtmlParser extends StatelessWidget {
     HtmlParser parser,
   ) {
     List<StyledElement> children = <StyledElement>[];
-
     for (var childNode in node.nodes) {
       children.add(_recursiveLexer(
         childNode,
@@ -167,8 +173,6 @@ class HtmlParser extends StatelessWidget {
         parser,
       ));
     }
-
-    //TODO(Sub6Resources): There's probably a more efficient way to look this up.
     if (node is dom.Element) {
       if (!tagsList.contains(node.localName)) {
         return EmptyContentElement();
@@ -214,7 +218,9 @@ class HtmlParser extends StatelessWidget {
   }
 
   static Map<String, Map<String, List<css.Expression>>> _getExternalCssDeclarations(
-      List<dom.Element> styles, OnCssParseError? errorHandler) {
+    List<dom.Element> styles,
+    OnCssParseError? errorHandler,
+  ) {
     String fullCss = "";
     for (final e in styles) {
       fullCss = fullCss + e.innerHtml;
@@ -228,7 +234,9 @@ class HtmlParser extends StatelessWidget {
   }
 
   static StyledElement _applyExternalCss(
-      Map<String, Map<String, List<css.Expression>>> declarations, StyledElement tree) {
+    Map<String, Map<String, List<css.Expression>>> declarations,
+    StyledElement tree,
+  ) {
     declarations.forEach((key, style) {
       try {
         if (tree.matchesSelector(key)) {
@@ -244,9 +252,15 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  static StyledElement _applyInlineStyles(StyledElement tree, OnCssParseError? errorHandler) {
+  static StyledElement _applyInlineStyles(
+    StyledElement tree,
+    OnCssParseError? errorHandler,
+  ) {
     if (tree.attributes.containsKey("style")) {
-      final newStyle = inlineCssToStyle(tree.attributes['style'], errorHandler);
+      final newStyle = inlineCssToStyle(
+        tree.attributes['style'],
+        errorHandler,
+      );
       if (newStyle != null) {
         tree.style = tree.style.merge(newStyle);
       }
@@ -258,9 +272,13 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [applyCustomStyles] applies the [CSS3] objects passed into the [HTML5]
-  /// widget onto the [StyledElement] tree, no cascading of styles is done at this point.
-  static StyledElement _applyCustomStyles(Map<String, CSS3> style, StyledElement tree) {
+  /// [applyCustomStyles] applies the [CSS3] objects
+  /// passed into the [HTML5] widget onto the [StyledElement]
+  /// tree, no cascading of styles is done at this point.
+  static StyledElement _applyCustomStyles(
+    Map<String, CSS3> style,
+    StyledElement tree,
+  ) {
     style.forEach((key, style) {
       try {
         if (tree.matchesSelector(key)) {
@@ -275,9 +293,13 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [_cascadeStyles] cascades all of the inherited styles down the tree, applying them to each
-  /// child that doesn't specify a different style.
-  static StyledElement _cascadeStyles(Map<String, CSS3> style, StyledElement tree) {
+  /// [_cascadeStyles] cascades all of the inherited styles
+  /// down the tree, applying them to each child that doesn't
+  /// specify a different style.
+  static StyledElement _cascadeStyles(
+    Map<String, CSS3> style,
+    StyledElement tree,
+  ) {
     for (var child in tree.children) {
       child.style = tree.style.copyOnlyInherited(child.style);
       _cascadeStyles(style, child);
@@ -286,12 +308,19 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [styleTree] takes the lexed [StyleElement] tree and applies external,
-  /// inline, and custom CSS/Flutter styles, and then cascades the styles down the tree.
-  static StyledElement styleTree(StyledElement tree, dom.Element htmlData, Map<String, CSS3> style,
-      OnCssParseError? onCssParseError) {
-    Map<String, Map<String, List<css.Expression>>> declarations =
-        _getExternalCssDeclarations(htmlData.getElementsByTagName("style"), onCssParseError);
+  /// [styleTree] takes the lexed [StyleElement] tree
+  /// and applies external, inline, and custom CSS/Flutter
+  /// styles, and then cascades the styles down the tree.
+  static StyledElement styleTree(
+    StyledElement tree,
+    dom.Element htmlData,
+    Map<String, CSS3> style,
+    OnCssParseError? onCssParseError,
+  ) {
+    final declarations = _getExternalCssDeclarations(
+      htmlData.getElementsByTagName("style"),
+      onCssParseError,
+    );
 
     StyledElement? externalCssStyledTree;
     if (declarations.isNotEmpty) {
@@ -303,14 +332,18 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [processTree] optimizes the [StyledElement] tree so all [BlockElement]s are
-  /// on the first level, redundant levels are collapsed, empty elements are
-  /// removed, and specialty elements are processed.
-  static StyledElement processTree(StyledElement tree, double devicePixelRatio) {
+  /// [processTree] optimizes the [StyledElement] tree
+  /// so all [BlockElement]s are on the first level,
+  /// redundant levels are collapsed, empty elements
+  /// are removed, and specialty elements are processed.
+  static StyledElement processTree(
+    StyledElement tree,
+    double devicePixelRatio,
+  ) {
+    //...
     tree = _processInternalWhitespace(tree);
     tree = _processInlineWhitespace(tree);
     tree = _removeEmptyElements(tree);
-
     tree = _calculateRelativeValues(tree, devicePixelRatio);
     tree = _preprocessListMarkers(tree);
     tree = _processCounters(tree);
@@ -320,13 +353,13 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [parseTree] converts a tree of [StyledElement]s to an [InlineSpan] tree.
-  ///
-  /// [parseTree] is responsible for handling the [customRenders] parameter and
-  /// deciding what different `Style.display` options look like as Widgets.
+  /// [parseTree] converts a tree of [StyledElement]s
+  /// to an [InlineSpan] tree. [parseTree] is responsible
+  /// for handling the [customRenders] parameter and
+  /// deciding what different `Style.display` options
+  /// look like as Widgets.
   InlineSpan parseTree(RenderContext context, StyledElement tree) {
-    // Merge this element's style into the context so that children
-    // inherit the correct style
+    //...
     RenderContext newContext = RenderContext(
       buildContext: context.buildContext,
       parser: this,
@@ -355,7 +388,7 @@ class HtmlParser extends StatelessWidget {
           child: CssBoxWidget(
             style: tree.style,
             shrinkWrap: newContext.parser.shrinkWrap,
-            childIsReplaced: true, //TODO is this true?
+            childIsReplaced: true,
             child: customRenders[entry]!.widget!.call(newContext, buildChildren),
           ),
         );
@@ -364,23 +397,32 @@ class HtmlParser extends StatelessWidget {
     return const WidgetSpan(child: SizedBox(height: 0, width: 0));
   }
 
-  static OnTap _handleAnchorTap(Key key, OnTap? onLinkTap) =>
-      (String? url, RenderContext context, Map<String, String> attributes, dom.Element? element) {
-        if (url?.startsWith("#") == true) {
-          final anchorContext = AnchorKey.forId(key, url!.substring(1))?.currentContext;
-          if (anchorContext != null) {
-            Scrollable.ensureVisible(anchorContext);
-          }
-          return;
+  static OnTap _handleAnchorTap(Key key, OnTap? onLinkTap) {
+    //...
+    return (url, context, attributes, element) {
+      if (url?.startsWith("#") == true) {
+        final anchorContext = AnchorKey.forId(
+          key,
+          url!.substring(1),
+        )?.currentContext;
+        if (anchorContext != null) {
+          Scrollable.ensureVisible(anchorContext);
         }
-        onLinkTap?.call(url, context, attributes, element);
-      };
+        return;
+      }
+      onLinkTap?.call(
+        url,
+        context,
+        attributes,
+        element,
+      );
+    };
+  }
 
-  /// [processWhitespace] removes unnecessary whitespace from the StyledElement tree.
-  ///
-  /// The criteria for determining which whitespace is replaceable is outlined
-  /// at https://www.w3.org/TR/css-text-3/
-  /// and summarized at https://medium.com/@patrickbrosset/when-does-white-space-matter-in-html-b90e8a7cdd33
+  /// [processWhitespace] removes unnecessary whitespace
+  /// from the StyledElement tree. The criteria for
+  /// determining which whitespace is replaceable is outlined
+  /// at https://www.w3.org/TR/css-text-3/ and summarized.
   static StyledElement _processInternalWhitespace(StyledElement tree) {
     if ((tree.style.whiteSpace ?? WhiteSpace.normal) == WhiteSpace.pre) {
       // Preserve this whitespace
@@ -392,28 +434,33 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [_processInlineWhitespace] is responsible for removing redundant whitespace
-  /// between and among inline elements. It does so by creating a boolean [Context]
-  /// and passing it to the [_processInlineWhitespaceRecursive] function.
+  /// [_processInlineWhitespace] is responsible for removing
+  /// redundant whitespace between and among inline elements.
+  /// It does so by creating a boolean [Context] and passing
+  /// it to the [_processInlineWhitespaceRecursive] function.
   static StyledElement _processInlineWhitespace(StyledElement tree) {
     tree = _processInlineWhitespaceRecursive(tree, Context(false));
     return tree;
   }
 
-  /// [_processInlineWhitespaceRecursive] analyzes the whitespace between and among different
-  /// inline elements, and replaces any instance of two or more spaces with a single space, according
-  /// to the w3's HTML whitespace processing specification linked to above.
+  /// [_processInlineWhitespaceRecursive] analyzes the
+  /// whitespace between and among different inline elements,
+  /// and replaces any instance of two or more spaces with a
+  /// single space, according to the w3's HTML whitespace
+  /// processing specification linked to above.
   static StyledElement _processInlineWhitespaceRecursive(
     StyledElement tree,
     Context<bool> keepLeadingSpace,
   ) {
     if (tree is TextContentElement) {
-      /// initialize indices to negative numbers to make conditionals a little easier
+      /// initialize indices to negative numbers to make
+      /// conditionals a little easier
       int textIndex = -1;
       int elementIndex = -1;
 
-      /// initialize parent after to a whitespace to account for elements that are
-      /// the last child in the list of elements
+      /// initialize parent after to a whitespace to account
+      /// for elements that are the last child in the list of
+      /// elements
       String parentAfterText = " ";
 
       /// find the index of the text in the current tree
@@ -424,15 +471,18 @@ class HtmlParser extends StatelessWidget {
       /// get the parent nodes
       dom.NodeList? parentNodes = tree.element?.parent?.nodes;
 
-      /// find the index of the tree itself in the parent nodes
+      /// find the index of the tree itself in the parent
+      /// nodes
       if ((parentNodes?.length ?? 0) >= 1) {
         elementIndex = parentNodes?.indexWhere((element) => element == tree.element) ?? -1;
       }
 
-      /// if the tree is any node except the last node in the node list and the
-      /// next node in the node list is a text node, then get its text. Otherwise
-      /// the next node will be a [dom.Element], so keep unwrapping that until
-      /// we get the underlying text node, and finally get its text.
+      /// if the tree is any node except the last node in
+      /// the node list and the next node in the node list
+      /// is a text node, then get its text. Otherwise the
+      /// next node will be a [dom.Element], so keep unwrapping
+      /// that until we get the underlying text node, and
+      /// finally get its text.
       if (elementIndex < (parentNodes?.length ?? 1) - 1 &&
           parentNodes?[elementIndex + 1] is dom.Text) {
         parentAfterText = parentNodes?[elementIndex + 1].text ?? " ";
@@ -448,15 +498,18 @@ class HtmlParser extends StatelessWidget {
         parentAfterText = parentAfter?.text ?? " ";
       }
 
-      /// If the text is the first element in the current tree node list, it
-      /// starts with a whitespace, it isn't a line break, either the
-      /// whitespace is unnecessary or it is a block element, and either it is
-      /// first element in the parent node list or the previous element
-      /// in the parent node list ends with a whitespace, delete it.
+      /// If the text is the first element in the current tree
+      /// node list, it starts with a whitespace, it isn't a
+      /// line break, either the whitespace is unnecessary or
+      /// it is a block element, and either it is first element
+      /// in the parent node list or the previous element in
+      /// the parent node list ends with a whitespace, delete
+      /// it.
       ///
-      /// We should also delete the whitespace at any point in the node list
-      /// if the previous element is a <br> because that tag makes the element
-      /// act like a block element.
+      /// We should also delete the whitespace at any point in
+      /// the node list if the previous element is a <br>
+      /// because that tag makes the element act like a block
+      /// element.
       if (textIndex < 1 &&
           tree.text!.startsWith(' ') &&
           tree.element?.localName != "br" &&
@@ -473,11 +526,12 @@ class HtmlParser extends StatelessWidget {
         tree.text = tree.text!.replaceFirst(' ', '');
       }
 
-      /// If the text is the last element in the current tree node list, it isn't
-      /// a line break, and the next text node starts with a whitespace,
-      /// update the [Context] to signify to that next text node whether it should
-      /// keep its whitespace. This is based on whether the current text ends with a
-      /// whitespace.
+      /// If the text is the last element in the current tree
+      /// node list, it isn't a line break, and the next text
+      /// node starts with a whitespace, update the [Context]
+      /// to signify to that next text node whether it should
+      /// keep its whitespace. This is based on whether the
+      /// current text ends with a whitespace.
       if (textIndex == (tree.element?.nodes.length ?? 1) - 1 &&
           tree.element?.localName != "br" &&
           parentAfterText.startsWith(' ')) {
@@ -486,19 +540,23 @@ class HtmlParser extends StatelessWidget {
     }
 
     for (var element in tree.children) {
+      //...
       _processInlineWhitespaceRecursive(element, keepLeadingSpace);
     }
 
     return tree;
   }
 
-  /// [removeUnnecessaryWhitespace] removes "unnecessary" white space from the given String.
+  /// [removeUnnecessaryWhitespace] removes "unnecessary" white
+  /// space from the given String.
   ///
   /// The steps for removing this whitespace are as follows:
-  /// (1) Remove any whitespace immediately preceding or following a newline.
-  /// (2) Replace all newlines with a space
-  /// (3) Replace all tabs with a space
-  /// (4) Replace any instances of two or more spaces with a single space.
+  /// - Remove any whitespace immediately preceding or following
+  ///   a newline.
+  /// - Replace all newlines with a space
+  /// - Replace all tabs with a space
+  /// - Replace any instances of two or more spaces with a
+  /// single space.
   static String _removeUnnecessaryWhitespace(String text) {
     return text
         .replaceAll(RegExp("\\ *(?=\n)"), "\n")
@@ -508,23 +566,23 @@ class HtmlParser extends StatelessWidget {
         .replaceAll(RegExp(" {2,}"), " ");
   }
 
-  /// [preprocessListMarkers] adds marker pseudo elements to the front of all list
-  /// items.
+  /// [preprocessListMarkers] adds marker pseudo elements to the
+  /// front of all list items.
   static StyledElement _preprocessListMarkers(StyledElement tree) {
+    //...
     tree.style.listStylePosition ??= ListStylePosition.outside;
 
     if (tree.style.display == Display.listItem) {
-      // Add the marker pseudo-element if it doesn't exist
+      //...
       tree.style.marker ??= Marker(
         content: Content.normal,
         style: tree.style,
       );
 
-      // Inherit styles from originating widget
-      tree.style.marker!.style = tree.style.copyOnlyInherited(tree.style.marker!.style ?? CSS3());
+      tree.style.marker!.style = tree.style.copyOnlyInherited(
+        tree.style.marker!.style ?? CSS3(),
+      );
 
-      // Add the implicit counter-increment on `list-item` if it isn't set
-      // explicitly already
       tree.style.counterIncrement ??= {};
       if (!tree.style.counterIncrement!.containsKey('list-item')) {
         tree.style.counterIncrement!['list-item'] = 1;
@@ -546,9 +604,12 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [_processListCounters] adds the appropriate counter values to each
-  /// StyledElement on the tree.
-  static StyledElement _processCounters(StyledElement tree, [ListQueue<Counter>? counters]) {
+  /// [_processListCounters] adds the appropriate counter values
+  /// to each StyledElement on the tree.
+  static StyledElement _processCounters(
+    StyledElement tree, [
+    ListQueue<Counter>? counters,
+  ]) {
     // Add the counters for the current scope.
     tree.counters.addAll(counters?.deepCopy() ?? []);
 
@@ -563,15 +624,15 @@ class HtmlParser extends StatelessWidget {
     if (tree.style.counterIncrement != null) {
       tree.style.counterIncrement!.forEach((counterName, increment) {
         tree.counters
-            .lastWhereOrNull(
+            .lastWhereOrNull<Counter>(
               (counter) => counter.name == counterName,
             )
             ?.increment(increment ?? 1);
 
-        // If we didn't newly create the counter, increment the counter in the old copy as well.
-        if (tree.style.counterReset == null || !tree.style.counterReset!.containsKey(counterName)) {
+        final check = !tree.style.counterReset!.containsKey(counterName);
+        if (tree.style.counterReset == null || check) {
           counters
-              ?.lastWhereOrNull(
+              ?.lastWhereOrNull<Counter>(
                 (counter) => counter.name == counterName,
               )
               ?.increment(increment ?? 1);
@@ -588,7 +649,8 @@ class HtmlParser extends StatelessWidget {
 
   static StyledElement _processListMarkers(StyledElement tree) {
     if (tree.style.display == Display.listItem) {
-      final listStyleType = tree.style.listStyleType ?? ListStyleType.decimal;
+      final listStyleType = tree.style.listStyleType ?? //
+          ListStyleType.decimal;
       final counterStyle = CounterStyleRegistry.lookup(
         listStyleType.counterStyle,
       );
@@ -605,7 +667,10 @@ class HtmlParser extends StatelessWidget {
               tree.counters.lastOrNull?.value ?? 0,
             );
       }
-      tree.style.marker = Marker(content: Content(counterContent), style: tree.style.marker?.style);
+      tree.style.marker = Marker(
+        content: Content(counterContent),
+        style: tree.style.marker?.style,
+      );
     }
 
     for (var child in tree.children) {
@@ -615,9 +680,9 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [_processBeforeAndAfter] adds text content to the beginning and end of
-  /// the list of the trees children according to the `before` and `after` Style
-  /// properties.
+  /// [_processBeforeAndAfter] adds text content to the
+  /// beginning and end of the list of the trees children
+  /// according to the `before` and `after` Style properties.
   static StyledElement _processBeforeAndAfter(StyledElement tree) {
     if (tree.style.before != null) {
       tree.children.insert(
@@ -640,97 +705,102 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [collapseMargins] follows the specifications at https://www.w3.org/TR/CSS22/box.html#collapsing-margins
-  /// for collapsing margins of block-level boxes. This prevents the doubling of margins between
-  /// boxes, and makes for a more correct rendering of the html content.
+  /// [collapseMargins] follows the specifications at
+  /// https://www.w3.org/TR/CSS22/box.html#collapsing-margins
+  /// for collapsing margins of block-level boxes. This
+  /// prevents the doubling of margins between boxes, and
+  /// makes for a more correct rendering of the html content.
   ///
   /// Paraphrased from the CSS specification:
-  /// Margins are collapsed if both belong to vertically-adjacent box edges, i.e form one of the following pairs:
-  /// (1) Top margin of a box and top margin of its first in-flow child
-  /// (2) Bottom margin of a box and top margin of its next in-flow following sibling
-  /// (3) Bottom margin of a last in-flow child and bottom margin of its parent (if the parent's height is not explicit)
-  /// (4) Top and Bottom margins of a box with a height of zero or no in-flow children.
+  /// Margins are collapsed if both belong to vertically -
+  /// adjacent box edges, i.e form one of the following
+  /// pairs:
+  /// - Top margin of a box and top margin of its first in-
+  ///   flow child
+  /// - Bottom margin of a box and top margin of its next
+  ///   in-flow following sibling
+  /// - Bottom margin of a last in-flow child and bottom
+  ///   margin of its parent (if the parent's height is not
+  ///   explicit)
+  /// - Top and Bottom margins of a box with a height of
+  ///   zero or no in-flow children.
   static StyledElement _collapseMargins(StyledElement tree) {
-    //Short circuit if we've reached a leaf of the tree
+    //...
     if (tree.children.isEmpty) {
-      // Handle case (4) from above.
       if (tree.style.height?.value == 0 && tree.style.height?.unit != Unit.auto) {
         tree.style.margin = tree.style.margin?.collapse() ?? Margins.zero;
       }
       return tree;
     }
 
-    //Collapsing should be depth-first.
     tree.children.forEach(_collapseMargins);
-
-    //The root boxes do not collapse.
     if (tree.name == '[Tree Root]' || tree.name == 'html') {
       return tree;
     }
 
-    // Handle case (1) from above.
-    // Top margins cannot collapse if the element has padding
     if ((tree.style.padding?.top ?? 0) == 0) {
       final parentTop = tree.style.margin?.top?.value ?? 0;
-      final firstChildTop = tree.children.first.style.margin?.top?.value ?? 0;
-      final newOuterMarginTop = max(parentTop, firstChildTop);
+      final fct = tree.children.first.style.margin?.top?.value ?? 0;
+      final newOuterMarginTop = max(parentTop, fct);
 
-      // Set the parent's margin
       if (tree.style.margin == null) {
         tree.style.margin = Margins.only(top: newOuterMarginTop);
       } else {
-        tree.style.margin = tree.style.margin!.copyWithEdge(top: newOuterMarginTop);
+        tree.style.margin = tree.style.margin!.copyWithEdge(
+          top: newOuterMarginTop,
+        );
       }
 
-      // And remove the child's margin
       if (tree.children.first.style.margin == null) {
         tree.children.first.style.margin = Margins.zero;
       } else {
-        tree.children.first.style.margin = tree.children.first.style.margin!.copyWithEdge(top: 0);
+        tree.children.first.style.margin = tree.children.first.style.margin! //
+            .copyWithEdge(top: 0);
       }
     }
 
-    // Handle case (3) from above.
-    // Bottom margins cannot collapse if the element has padding
     if ((tree.style.padding?.bottom ?? 0) == 0) {
       final parentBottom = tree.style.margin?.bottom?.value ?? 0;
-      final lastChildBottom = tree.children.last.style.margin?.bottom?.value ?? 0;
-      final newOuterMarginBottom = max(parentBottom, lastChildBottom);
+      final lcb = tree.children.last.style.margin?.bottom?.value ?? 0;
+      final newOuterMarginBottom = max(parentBottom, lcb);
 
       // Set the parent's margin
       if (tree.style.margin == null) {
         tree.style.margin = Margins.only(bottom: newOuterMarginBottom);
       } else {
-        tree.style.margin = tree.style.margin!.copyWithEdge(bottom: newOuterMarginBottom);
+        tree.style.margin = tree.style.margin!.copyWithEdge(
+          bottom: newOuterMarginBottom,
+        );
       }
 
       // And remove the child's margin
       if (tree.children.last.style.margin == null) {
         tree.children.last.style.margin = Margins.zero;
       } else {
-        tree.children.last.style.margin = tree.children.last.style.margin!.copyWithEdge(bottom: 0);
+        tree.children.last.style.margin = tree.children.last.style.margin! //
+            .copyWithEdge(bottom: 0);
       }
     }
 
     // Handle case (2) from above.
     if (tree.children.length > 1) {
       for (int i = 1; i < tree.children.length; i++) {
-        final previousSiblingBottom = tree.children[i - 1].style.margin?.bottom?.value ?? 0;
+        final psb = tree.children[i - 1].style.margin?.bottom?.value ?? 0;
         final thisTop = tree.children[i].style.margin?.top?.value ?? 0;
-        final newInternalMargin = max(previousSiblingBottom, thisTop);
+        final newInternalMargin = max(psb, thisTop);
 
         if (tree.children[i - 1].style.margin == null) {
           tree.children[i - 1].style.margin = Margins.only(bottom: newInternalMargin);
         } else {
-          tree.children[i - 1].style.margin =
-              tree.children[i - 1].style.margin!.copyWithEdge(bottom: newInternalMargin);
+          tree.children[i - 1].style.margin = tree.children[i - 1].style.margin! //
+              .copyWithEdge(bottom: newInternalMargin);
         }
 
         if (tree.children[i].style.margin == null) {
           tree.children[i].style.margin = Margins.only(top: newInternalMargin);
         } else {
-          tree.children[i].style.margin =
-              tree.children[i].style.margin!.copyWithEdge(top: newInternalMargin);
+          tree.children[i].style.margin = tree.children[i].style.margin! //
+              .copyWithEdge(top: newInternalMargin);
         }
       }
     }
@@ -740,10 +810,12 @@ class HtmlParser extends StatelessWidget {
 
   /// [removeEmptyElements] recursively removes empty elements.
   ///
-  /// An empty element is any [EmptyContentElement], any empty [TextContentElement],
-  /// or any block-level [TextContentElement] that contains only whitespace and doesn't follow
-  /// a block element or a line break.
+  /// An empty element is any [EmptyContentElement], any empty
+  /// [TextContentElement], or any block-level [TextContentElement]
+  /// that contains only whitespace and doesn't follow a block
+  /// element or a line break.
   static StyledElement _removeEmptyElements(StyledElement tree) {
+    //...
     List<StyledElement> toRemove = <StyledElement>[];
     bool lastChildBlock = true;
     tree.children.forEachIndexed((index, child) {
@@ -774,7 +846,6 @@ class HtmlParser extends StatelessWidget {
         _removeEmptyElements(child);
       }
 
-      // This is used above to check if the previous element is a block element or a line break.
       lastChildBlock = (child.style.display == Display.block ||
           child.style.display == Display.listItem ||
           (child is TextContentElement && child.text == '\n'));
@@ -784,13 +855,13 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// [_calculateRelativeValues] converts rem values to px sizes and then
-  /// applies relative calculations
-  static StyledElement _calculateRelativeValues(StyledElement tree, double devicePixelRatio) {
+  /// [_calculateRelativeValues] converts rem values to px
+  /// sizes and then applies relative calculations
+  static StyledElement _calculateRelativeValues(
+    StyledElement tree,
+    double devicePixelRatio,
+  ) {
     double remSize = (tree.style.fontSize?.value ?? FontSize.medium.value);
-
-    //If the root element has a rem-based fontSize, then give it the default
-    // font size times the set rem value.
     if (tree.style.fontSize?.unit == Unit.rem) {
       tree.style.fontSize = FontSize(FontSize.medium.value * remSize);
     }
@@ -801,27 +872,35 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  /// This is the recursive worker function for [_calculateRelativeValues]
+  /// This is the recursive worker function for
+  /// [_calculateRelativeValues]
   static void _applyRelativeValuesRecursive(
-      StyledElement tree, double remFontSize, double devicePixelRatio) {
-    //When we get to this point, there should be a valid fontSize at every level.
+    StyledElement tree,
+    double remFontSize,
+    double devicePixelRatio,
+  ) {
+    //...
     assert(tree.style.fontSize != null);
-
     final parentFontSize = tree.style.fontSize!.value;
-
     for (var child in tree.children) {
       if (child.style.fontSize == null) {
         child.style.fontSize = FontSize(parentFontSize);
       } else {
         switch (child.style.fontSize!.unit) {
           case Unit.em:
-            child.style.fontSize = FontSize(parentFontSize * child.style.fontSize!.value);
+            child.style.fontSize = FontSize(
+              parentFontSize * child.style.fontSize!.value,
+            );
             break;
           case Unit.percent:
-            child.style.fontSize = FontSize(parentFontSize * (child.style.fontSize!.value / 100.0));
+            child.style.fontSize = FontSize(
+              parentFontSize * (child.style.fontSize!.value / 100.0),
+            );
             break;
           case Unit.rem:
-            child.style.fontSize = FontSize(remFontSize * child.style.fontSize!.value);
+            child.style.fontSize = FontSize(
+              remFontSize * child.style.fontSize!.value,
+            );
             break;
           case Unit.px:
           case Unit.auto:
@@ -829,23 +908,18 @@ class HtmlParser extends StatelessWidget {
             break;
         }
       }
-
-      // Note: it is necessary to scale down the emSize by the factor of
-      // devicePixelRatio since Flutter seems to calculates font sizes using
-      // physical pixels, but margins/padding using logical pixels.
       final emSize = child.style.fontSize!.value / devicePixelRatio;
-
       tree.style.setRelativeValues(remFontSize, emSize);
-
       _applyRelativeValuesRecursive(child, remFontSize, devicePixelRatio);
     }
   }
 }
 
-/// The [RenderContext] is available when parsing the tree. It contains information
-/// about the [BuildContext] of the `Html` widget, contains the configuration available
-/// in the [HtmlParser], and contains information about the [CSS3] of the current
-/// tree root.
+/// The [RenderContext] is available when parsing the tree.
+/// It contains information about the [BuildContext] of the
+/// `Html` widget, contains the configuration available in
+/// the [HtmlParser], and contains information about the [CSS3]
+/// of the current tree root.
 class RenderContext {
   final BuildContext buildContext;
   final HtmlParser parser;
@@ -872,14 +946,22 @@ extension IterateLetters on String {
       var lastChar = s.substring(s.length - 1);
       var sub = s.substring(0, s.length - 1);
       if (lastChar == "z") {
-        // If a string of length > 1 ends in Z/z,
-        // increment the string (excluding the last Z/z) recursively,
-        // and append A/a (depending on casing) to it
         return '${sub.nextLetter()}a';
       } else {
-        // (take till last char) append with (increment last char)
         return sub + String.fromCharCode(lastChar.codeUnitAt(0) + 1);
       }
     }
   }
 }
+
+typedef OnTap = void Function(
+  String? url,
+  RenderContext context,
+  Map<String, String> attributes,
+  dom.Element? element,
+);
+
+typedef OnCssParseError = String? Function(
+  String css,
+  List<css_parser.Message> errors,
+);

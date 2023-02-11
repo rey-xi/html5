@@ -1,11 +1,7 @@
 import 'length.dart';
 
 class FontSize extends LengthOrPercent {
-  FontSize(double size, [Unit unit = Unit.px]) : super(size, unit);
-
-  // These values are calculated based off of the default (`medium`)
-  // being 14px.
-  // TODO calculate from https://w3c.github.io/csswg-drafts/css-fonts-3/#absolute-size-value
+  //...
   static final xxSmall = FontSize(7.875);
   static final xSmall = FontSize(8.75);
   static final small = FontSize(11.375);
@@ -15,6 +11,11 @@ class FontSize extends LengthOrPercent {
   static final xxLarge = FontSize(28.0);
   static final smaller = FontSize(83, Unit.percent);
   static final larger = FontSize(120, Unit.percent);
+
+  FontSize(
+    double size, [
+    Unit unit = Unit.px,
+  ]) : super(size, unit);
 
   static FontSize? inherit(FontSize? parent, FontSize? child) {
     if (child != null && parent != null) {

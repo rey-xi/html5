@@ -10,16 +10,16 @@ import '../tags/html_tags.dart';
 import '../tags/utils.dart';
 import 'html.dart';
 
-typedef CustomRenderMatcher = bool Function(RenderContext context);
-
 CustomRenderMatcher tagMatcher(String tag) => (context) {
       return context.tree.element?.localName == tag;
     };
 
 CustomRenderMatcher blockElementMatcher() => (context) {
-      return (context.tree.style.display == Display.block ||
-              context.tree.style.display == Display.inlineBlock) &&
-          (context.tree.children.isNotEmpty || context.tree.element?.localName == "hr");
+      final check1 = context.tree.style.display == Display.inlineBlock;
+      final check2 = context.tree.style.display == Display.block;
+      final check4 = context.tree.element?.localName == "hr";
+      final check3 = context.tree.children.isNotEmpty;
+      return (check1 || check2) && (check3 || check4);
     };
 
 CustomRenderMatcher listElementMatcher() => (context) {
@@ -30,10 +30,16 @@ CustomRenderMatcher replacedElementMatcher() => (context) {
       return context.tree is ReplacedElement;
     };
 
-CustomRenderMatcher dataUriMatcher({String? encoding = 'base64', String? mime}) => (context) {
-      if (context.tree.element?.attributes == null ||
-          _src(context.tree.element!.attributes.cast()) == null) return false;
-      final dataUri = _dataUriFormat.firstMatch(_src(context.tree.element!.attributes.cast())!);
+CustomRenderMatcher dataUriMatcher({
+  String? encoding = 'base64',
+  String? mime,
+}) =>
+    (context) {
+      final blu = context.tree.element?.attributes;
+      if (blu == null) return false;
+      final attr = _src(context.tree.element!.attributes.cast());
+      if (attr == null) return false;
+      final dataUri = _dataUriFormat.firstMatch(attr);
       return dataUri != null &&
           dataUri.namedGroup('mime') != "image/svg+xml" &&
           (mime == null || dataUri.namedGroup('mime') == mime) &&
@@ -44,25 +50,32 @@ CustomRenderMatcher networkSourceMatcher({
   List<String> schemas = const ["https", "http"],
   List<String>? domains,
   String? extension,
-}) =>
-    (context) {
-      if (context.tree.element?.attributes.cast() == null ||
-          _src(context.tree.element!.attributes.cast()) == null) return false;
-      try {
-        final src = Uri.parse(_src(context.tree.element!.attributes.cast())!);
-        return schemas.contains(src.scheme) &&
-            (domains == null || domains.contains(src.host)) &&
-            (extension == null || src.path.endsWith(".$extension"));
-      } catch (e) {
-        return false;
-      }
-    };
+}) {
+  //...
+  return (context) {
+    final blu = context.tree.element?.attributes;
+    if (blu == null) return false;
+    final attr = _src(context.tree.element!.attributes.cast());
+    if (attr == null) return false;
+    if (context.tree.element?.attributes.cast() == null ||
+        _src(context.tree.element!.attributes.cast()) == null) return false;
+    try {
+      final src = Uri.parse(_src(context.tree.element!.attributes.cast())!);
+      return schemas.contains(src.scheme) &&
+          (domains == null || domains.contains(src.host)) &&
+          (extension == null || src.path.endsWith(".$extension"));
+    } catch (e) {
+      return false;
+    }
+  };
+}
 
-CustomRenderMatcher assetUriMatcher() => (context) =>
-    context.tree.element?.attributes.cast() != null &&
-    _src(context.tree.element!.attributes.cast()) != null &&
-    _src(context.tree.element!.attributes.cast())!.startsWith("asset:") &&
-    !_src(context.tree.element!.attributes.cast())!.endsWith(".svg");
+CustomRenderMatcher assetUriMatcher() => (context) {
+      return context.tree.element?.attributes.cast() != null &&
+          _src(context.tree.element!.attributes.cast()) != null &&
+          _src(context.tree.element!.attributes.cast())!.startsWith("asset:") &&
+          !_src(context.tree.element!.attributes.cast())!.endsWith(".svg");
+    };
 
 CustomRenderMatcher textContentElementMatcher() => (context) {
       return context.tree is TextContentElement;
@@ -99,6 +112,7 @@ class CustomRender {
 }
 
 class SelectableCustomRender extends CustomRender {
+  //...
   final TextSpan Function(RenderContext, List<TextSpan> Function()) textSpan;
 
   SelectableCustomRender.fromTextSpan({
@@ -106,7 +120,10 @@ class SelectableCustomRender extends CustomRender {
   }) : super.inlineSpan(inlineSpan: null);
 }
 
-CustomRender blockElementRender({CSS3? style, List<InlineSpan>? children}) =>
+CustomRender blockElementRender({
+  CSS3? style,
+  List<InlineSpan>? children,
+}) =>
     CustomRender.inlineSpan(inlineSpan: (context, buildChildren) {
       if (context.parser.selectable) {
         return TextSpan(
@@ -131,12 +148,13 @@ CustomRender blockElementRender({CSS3? style, List<InlineSpan>? children}) =>
           key: context.key,
           style: style ?? context.tree.style,
           shrinkWrap: context.parser.shrinkWrap,
-          childIsReplaced: HtmlElements.replacedExternalElements.contains(context.tree.name),
+          childIsReplaced: HtmlElements.replacedExternalElements.contains(
+            context.tree.name,
+          ),
           children: children ??
               context.tree.children
                   .expandIndexed((i, childTree) => [
                         context.parser.parseTree(context, childTree),
-                        //TODO can this newline be added in a different step?
                         if (i != context.tree.children.length - 1 &&
                             childTree.style.display == Display.block &&
                             childTree.element?.localName != "html" &&
@@ -148,7 +166,11 @@ CustomRender blockElementRender({CSS3? style, List<InlineSpan>? children}) =>
       );
     });
 
-CustomRender listElementRender({CSS3? style, Widget? child, List<InlineSpan>? children}) {
+CustomRender listElementRender({
+  CSS3? style,
+  Widget? child,
+  List<InlineSpan>? children,
+}) {
   return CustomRender.inlineSpan(
     inlineSpan: (context, buildChildren) {
       return WidgetSpan(
@@ -317,7 +339,10 @@ CustomRender networkImageRender({
                   frameBuilder: (ctx, child, frame, _) {
                     if (frame == null) {
                       return altWidget?.call(_alt(attributes)) ??
-                          Text(_alt(attributes) ?? "", style: context.style.generateTextStyle());
+                          Text(
+                            _alt(attributes) ?? "",
+                            style: context.style.generateTextStyle(),
+                          );
                     }
                     return child;
                   },
@@ -343,23 +368,33 @@ CustomRender networkImageRender({
                   MultipleTapGestureDetector.of(buildContext)!.onTap?.call();
                 }
                 context.parser.onImageTap?.call(
-                    src, context, context.tree.element!.attributes.cast(), context.tree.element);
+                  src,
+                  context,
+                  context.tree.element!.attributes.cast(),
+                  context.tree.element,
+                );
               },
             );
           });
     });
 
-CustomRender reactElementRender({List<InlineSpan>? children}) => CustomRender.inlineSpan(
-    inlineSpan: (context, buildChildren) => TextSpan(
-          children: children ??
-              (context.tree as ReactElement)
-                  .children
-                  .map((tree) => context.parser.parseTree(context, tree))
-                  .map((childSpan) {
-                return _getReactChildren(context, context.tree as ReactElement, childSpan,
-                    context.style.generateTextStyle().merge(childSpan.style));
-              }).toList(),
-        ));
+CustomRender reactElementRender({List<InlineSpan>? children}) {
+  return CustomRender.inlineSpan(
+      inlineSpan: (context, buildChildren) => TextSpan(
+            children: children ??
+                (context.tree as ReactElement)
+                    .children
+                    .map((tree) => context.parser.parseTree(context, tree))
+                    .map((childSpan) {
+                  return _getReactChildren(
+                    context,
+                    context.tree as ReactElement,
+                    childSpan,
+                    context.style.generateTextStyle().merge(childSpan.style),
+                  );
+                }).toList(),
+          ));
+}
 
 CustomRender layoutElementRender({Widget? child}) => CustomRender.inlineSpan(
     inlineSpan: (context, buildChildren) => WidgetSpan(
@@ -380,21 +415,26 @@ CustomRender verticalAlignRender(
               ),
             ));
 
-CustomRender fallbackRender({CSS3? style, List<InlineSpan>? children}) => CustomRender.inlineSpan(
-    inlineSpan: (context, buildChildren) => TextSpan(
-          style: style?.generateTextStyle() ?? context.style.generateTextStyle(),
-          children: context.tree.children
-              .expand((tree) => [
-                    context.parser.parseTree(context, tree),
-                    if (tree.style.display == Display.block &&
-                        tree.element?.parent?.localName != "th" &&
-                        tree.element?.parent?.localName != "td" &&
-                        tree.element?.localName != "html" &&
-                        tree.element?.localName != "body")
-                      const TextSpan(text: "\n"),
-                  ])
-              .toList(),
-        ));
+CustomRender fallbackRender({
+  CSS3? style,
+  List<InlineSpan>? children,
+}) {
+  return CustomRender.inlineSpan(
+      inlineSpan: (context, buildChildren) => TextSpan(
+            style: style?.generateTextStyle() ?? context.style.generateTextStyle(),
+            children: context.tree.children
+                .expand((tree) => [
+                      context.parser.parseTree(context, tree),
+                      if (tree.style.display == Display.block &&
+                          tree.element?.parent?.localName != "th" &&
+                          tree.element?.parent?.localName != "td" &&
+                          tree.element?.localName != "html" &&
+                          tree.element?.localName != "body")
+                        const TextSpan(text: "\n"),
+                    ])
+                .toList(),
+          ));
+}
 
 Map<CustomRenderMatcher, CustomRender> generateDefaultRenders() {
   return {
@@ -413,21 +453,38 @@ Map<CustomRenderMatcher, CustomRender> generateDefaultRenders() {
 }
 
 InlineSpan _getReactChildren(
-    RenderContext context, ReactElement tree, InlineSpan childSpan, TextStyle childStyle) {
+  RenderContext context,
+  ReactElement tree,
+  InlineSpan childSpan,
+  TextStyle childStyle,
+) {
   if (childSpan is TextSpan) {
     return TextSpan(
       text: childSpan.text,
       children: childSpan.children
-          ?.map((e) => _getReactChildren(context, tree, e, childStyle.merge(childSpan.style)))
+          ?.map(
+            (e) => _getReactChildren(
+              context,
+              tree,
+              e,
+              childStyle.merge(childSpan.style),
+            ),
+          )
           .toList(),
-      style: context.style
-          .generateTextStyle()
-          .merge(childSpan.style == null ? childStyle : childStyle.merge(childSpan.style)),
+      style: context.style.generateTextStyle().merge(
+            childSpan.style == null //
+                ? childStyle
+                : childStyle.merge(childSpan.style),
+          ),
       semanticsLabel: childSpan.semanticsLabel,
       recognizer: TapGestureRecognizer()
         ..onTap = context.parser.internalOnAnchorTap != null
             ? () => context.parser.internalOnAnchorTap!(
-                tree.href, context, tree.attributes, tree.element)
+                  tree.href,
+                  context,
+                  tree.attributes,
+                  tree.element,
+                )
             : null,
     );
   } else {
@@ -450,8 +507,11 @@ InlineSpan _getReactChildren(
   }
 }
 
-final _dataUriFormat =
-    RegExp("^(?<scheme>data):(?<mime>image\\/[\\w\\+\\-\\.]+)(?<encoding>;base64)?\\,(?<data>.*)");
+final _dataUriFormat = RegExp(
+  "^(?<scheme>data):(?<mime>image\\/[\\"
+  "w\\+\\-\\.]+)(?<encoding>;base64)?\\"
+  ",(?<data>.*)",
+);
 
 double _getVerticalOffset(StyledElement tree) {
   switch (tree.style.verticalAlign) {
@@ -474,26 +534,39 @@ String? _alt(Map<String, String> attributes) {
 
 double? _height(Map<String, String> attributes) {
   final heightString = attributes["height"];
-  return heightString == null ? heightString as double? : double.tryParse(heightString);
+  return heightString == null //
+      ? heightString as double?
+      : double.tryParse(heightString);
 }
 
 double? _width(Map<String, String> attributes) {
   final widthString = attributes["width"];
-  return widthString == null ? widthString as double? : double.tryParse(widthString);
+  return widthString == null //
+      ? widthString as double?
+      : double.tryParse(widthString);
 }
 
-double _aspectRatio(Map<String, String> attributes, AsyncSnapshot<Size> calculated) {
+double _aspectRatio(
+  Map<String, String> attributes,
+  AsyncSnapshot<Size> calculated,
+) {
   final heightString = attributes["height"];
   final widthString = attributes["width"];
   if (heightString != null && widthString != null) {
     final height = double.tryParse(heightString);
     final width = double.tryParse(widthString);
-    return height == null || width == null ? calculated.data!.aspectRatio : width / height;
+    return height == null || width == null //
+        ? calculated.data!.aspectRatio
+        : width / height;
   }
   return calculated.data!.aspectRatio;
 }
 
 extension ClampedEdgeInsets on EdgeInsetsGeometry {
-  EdgeInsetsGeometry get nonNegative =>
-      clamp(EdgeInsets.zero, const EdgeInsets.all(double.infinity));
+  EdgeInsetsGeometry get nonNegative => clamp(
+        EdgeInsets.zero,
+        const EdgeInsets.all(double.infinity),
+      );
 }
+
+typedef CustomRenderMatcher = bool Function(RenderContext context);

@@ -4,8 +4,9 @@ import 'package:html/dom.dart' as dom;
 import '../core/html5.dart';
 import '../parsers/html.dart';
 
-/// A [LayoutElement] is an element that breaks the normal Inline flow of
-/// an html document with a more complex layout. LayoutElements handle
+/// A [LayoutElement] is an element that breaks the normal
+/// Inline flow of an html document with a more complex layout.
+/// LayoutElements handle
 abstract class LayoutElement extends StyledElement {
   LayoutElement({
     String name = "[[No Name]]",
@@ -66,10 +67,8 @@ class TableCellElement extends StyledElement {
   }
 }
 
-TableCellElement parseTableCellElement(
-  dom.Element element,
-  List<StyledElement> children,
-) {
+TableCellElement parseTableCellElement(dom.Element element,
+    List<StyledElement> children,) {
   final cell = TableCellElement(
     name: element.localName!,
     elementId: element.id,
@@ -95,10 +94,8 @@ class TableStyleElement extends StyledElement {
   });
 }
 
-TableStyleElement parseTableDefinitionElement(
-  dom.Element element,
-  List<StyledElement> children,
-) {
+TableStyleElement parseTableDefinitionElement(dom.Element element,
+    List<StyledElement> children,) {
   switch (element.localName) {
     case "colgroup":
     case "col":
@@ -131,7 +128,7 @@ class DetailsContentElement extends LayoutElement {
   @override
   Widget toWidget(RenderContext context) {
     List<InlineSpan>? childrenList =
-        children.map((tree) => context.parser.parseTree(context, tree)).toList();
+    children.map((tree) => context.parser.parseTree(context, tree)).toList();
     List<InlineSpan> toRemove = [];
     for (InlineSpan child in childrenList) {
       if (child is TextSpan && child.text != null && child.text!.trim().isEmpty) {
@@ -147,9 +144,9 @@ class DetailsContentElement extends LayoutElement {
         expandedAlignment: Alignment.centerLeft,
         title: elementList.isNotEmpty == true && elementList.first.localName == "summary"
             ? CssBoxWidget.withInlineSpanChildren(
-                children: firstChild == null ? [] : [firstChild],
-                style: style,
-              )
+          children: firstChild == null ? [] : [firstChild],
+          style: style,
+        )
             : const Text("Details"),
         children: [
           CssBoxWidget.withInlineSpanChildren(
@@ -164,8 +161,8 @@ class DetailsContentElement extends LayoutElement {
         ]);
   }
 
-  List<InlineSpan> getChildren(
-      List<InlineSpan> children, RenderContext context, InlineSpan? firstChild) {
+  List<InlineSpan> getChildren(List<InlineSpan> children, RenderContext context,
+      InlineSpan? firstChild) {
     if (firstChild != null) children.removeAt(0);
     return children;
   }
@@ -174,18 +171,16 @@ class DetailsContentElement extends LayoutElement {
 class EmptyLayoutElement extends LayoutElement {
   EmptyLayoutElement({required String name})
       : super(
-          name: name,
-          children: [],
-        );
+    name: name,
+    children: [],
+  );
 
   @override
   Widget? toWidget(context) => null;
 }
 
-LayoutElement parseLayoutElement(
-  dom.Element element,
-  List<StyledElement> children,
-) {
+LayoutElement parseLayoutElement(dom.Element element,
+    List<StyledElement> children,) {
   switch (element.localName) {
     case "details":
       if (children.isEmpty) {

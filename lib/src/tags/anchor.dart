@@ -13,7 +13,6 @@ class AnchorKey extends GlobalKey {
   static AnchorKey? of(Key? parentKey, StyledElement? id) {
     final key = forId(parentKey, id?.elementId);
     if (key == null || _registry.contains(key)) {
-      // Invalid id or already created a key with this id: silently ignore
       return null;
     }
     _registry.add(key);
@@ -31,10 +30,10 @@ class AnchorKey extends GlobalKey {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is AnchorKey &&
-              runtimeType == other.runtimeType &&
-              parentKey == other.parentKey &&
-              id == other.id;
+      other is AnchorKey &&
+          runtimeType == other.runtimeType &&
+          parentKey == other.parentKey &&
+          id == other.id;
 
   @override
   int get hashCode => parentKey.hashCode ^ id.hashCode;
