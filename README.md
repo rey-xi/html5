@@ -70,7 +70,7 @@ Don't see a tag or attribute you need? File a feature request or contribute to t
 
 ## Usage
 
-- [See wiki for more details]()
+- [See wiki for more details](https://github.com/rey-xi/html5/wiki#html5)
 
 ```dart
 import 'html5/html5.dart';
