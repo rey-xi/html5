@@ -32,7 +32,7 @@ Add the following to your `pubspec.yaml` file:
 ```yaml
     ...
     dependencies:
-      HTML5: ^0.0.1
+      rhtml5: ^0.0.1
       ...
 ```
 
