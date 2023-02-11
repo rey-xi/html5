@@ -32,8 +32,7 @@ Add the following to your `pubspec.yaml` file:
 ```yaml
     ...
     dependencies:
-      rhtml5: ^0.0.1
-      ...
+      html5_api: ^0.0.1
 ```
 
 ## Currently Supported HTML Tags:
@@ -74,6 +73,7 @@ Don't see a tag or attribute you need? File a feature request or contribute to t
 - [See wiki for more details]()
 
 ```dart
+import 'html5/html5.dart';
 
 Widget html = Html(
     data: """
