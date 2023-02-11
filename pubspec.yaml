@@ -1,6 +1,6 @@
 name: rhtml5
 description: Render HTML source as native flutter widgets
-version: 0.0.1
+version: 0.0.1+1
 homepage: https://github.com/rey-xi/html5
 repository: https://github.com/rey-xi/html5
 

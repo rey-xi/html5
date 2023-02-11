@@ -332,7 +332,9 @@ CSS3 cssToStyle(Map<String, List<css.Expression>> exp) {
                 style.textDecorationColor;
           }
           if (styles.lastOrNull != null) {
-            style.textDecorationStyle = Expression.toTextDecorStyle(styles.lastOrNull!);
+            style.textDecorationStyle = Expression.toTextDecorStyle(
+              styles.lastOrNull!,
+            );
           }
           break;
         case 'text-decoration-color':
@@ -345,7 +347,9 @@ CSS3 cssToStyle(Map<String, List<css.Expression>> exp) {
           style.textDecoration = Expression.toTextDecorationLine(textDecorationList);
           break;
         case 'text-decoration-style':
-          style.textDecorationStyle = Expression.toTextDecorStyle(value.first as css.LiteralTerm);
+          style.textDecorationStyle = Expression.toTextDecorStyle(
+            value.first as css.LiteralTerm,
+          );
           break;
         case 'text-shadow':
           style.textShadow = Expression.toTextShadow(value);
@@ -363,7 +367,8 @@ CSS3 cssToStyle(Map<String, List<css.Expression>> exp) {
           }
           break;
         case 'width':
-          style.width = Expression.toWidth(value.first) ?? style.width;
+          style.width = Expression.toWidth(value.first) ?? //
+              style.width;
           break;
       }
     }
@@ -371,7 +376,10 @@ CSS3 cssToStyle(Map<String, List<css.Expression>> exp) {
   return style;
 }
 
-CSS3? inlineCssToStyle(String? inlineStyle, OnCssParseError? errorHandler) {
+CSS3? inlineCssToStyle(
+  String? inlineStyle,
+  OnCssParseError? errorHandler,
+) {
   //...
   var errors = <css_parser.Message>[];
   final sheet = css_parser.parse("*{$inlineStyle}", errors: errors);

@@ -1,7 +1,7 @@
 import 'length.dart';
 
 class FontSize extends LengthOrPercent {
-  //...
+  //...Fields
   static final xxSmall = FontSize(7.875);
   static final xSmall = FontSize(8.75);
   static final small = FontSize(11.375);

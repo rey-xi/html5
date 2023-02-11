@@ -16,6 +16,7 @@ import 'css.dart';
 import 'custom.dart';
 
 class HtmlParser extends StatelessWidget {
+  //...Fields
   final dom.Element htmlData;
   final OnTap? onLinkTap;
   final OnTap? onAnchorTap;
@@ -52,12 +53,12 @@ class HtmlParser extends StatelessWidget {
     this.selectionControls,
     this.scrollPhysics,
   }) : internalOnAnchorTap = onAnchorTap ??
-            (key != null
-                ? _handleAnchorTap(
-                    key,
-                    onLinkTap,
-                  )
-                : onLinkTap);
+      (key != null
+          ? _handleAnchorTap(
+        key,
+        onLinkTap,
+      )
+          : onLinkTap);
 
   /// As the widget [build]s, the HTML data is processed into
   /// a tree of [StyledElement]s,  which are then parsed into
@@ -85,7 +86,9 @@ class HtmlParser extends StatelessWidget {
     // Processing Step
     StyledElement processedTree = processTree(
       styledTree,
-      MediaQuery.of(context).devicePixelRatio,
+      MediaQuery
+          .of(context)
+          .devicePixelRatio,
     );
 
     // Parsing Step
@@ -112,7 +115,9 @@ class HtmlParser extends StatelessWidget {
   /// [parseHTML] converts a string of HTML to a DOM element
   /// using the dart `html` library.
   static dom.Element parseHTML(String data) {
-    return html_parser.parse(data).documentElement!;
+    return html_parser
+        .parse(data)
+        .documentElement!;
   }
 
   /// [parseCss] converts a string of CSS to a CSS stylesheet
@@ -123,18 +128,19 @@ class HtmlParser extends StatelessWidget {
 
   /// [lexDomTree] converts a DOM document to a simplified
   /// tree of [StyledElement]s.
-  static StyledElement lexDomTree(
-    dom.Element html,
-    List<CustomRenderMatcher> customRenderMatchers,
-    List<String> tagsList,
-    BuildContext context,
-    HtmlParser parser,
-  ) {
+  static StyledElement lexDomTree(dom.Element html,
+      List<CustomRenderMatcher> customRenderMatchers,
+      List<String> tagsList,
+      BuildContext context,
+      HtmlParser parser,) {
     StyledElement tree = StyledElement(
       name: "[Tree Root]",
       children: <StyledElement>[],
       node: html,
-      style: CSS3.fromTextStyle(Theme.of(context).textTheme.bodyMedium!),
+      style: CSS3.fromTextStyle(Theme
+          .of(context)
+          .textTheme
+          .bodyMedium!),
     );
 
     for (var node in html.nodes) {
@@ -156,13 +162,11 @@ class HtmlParser extends StatelessWidget {
   /// It runs the parse functions of every type of element
   /// and returns a [StyledElement] tree representing the
   /// element.
-  static StyledElement _recursiveLexer(
-    dom.Node node,
-    List<CustomRenderMatcher> customRenderMatchers,
-    List<String> tagsList,
-    BuildContext context,
-    HtmlParser parser,
-  ) {
+  static StyledElement _recursiveLexer(dom.Node node,
+      List<CustomRenderMatcher> customRenderMatchers,
+      List<String> tagsList,
+      BuildContext context,
+      HtmlParser parser,) {
     List<StyledElement> children = <StyledElement>[];
     for (var childNode in node.nodes) {
       children.add(_recursiveLexer(
@@ -197,7 +201,10 @@ class HtmlParser extends StatelessWidget {
               buildContext: context,
               parser: parser,
               tree: tree,
-              style: CSS3.fromTextStyle(Theme.of(context).textTheme.bodyMedium!),
+              style: CSS3.fromTextStyle(Theme
+                  .of(context)
+                  .textTheme
+                  .bodyMedium!),
             ),
           )) {
             return tree;
@@ -218,9 +225,8 @@ class HtmlParser extends StatelessWidget {
   }
 
   static Map<String, Map<String, List<css.Expression>>> _getExternalCssDeclarations(
-    List<dom.Element> styles,
-    OnCssParseError? errorHandler,
-  ) {
+      List<dom.Element> styles,
+      OnCssParseError? errorHandler,) {
     String fullCss = "";
     for (final e in styles) {
       fullCss = fullCss + e.innerHtml;
@@ -234,9 +240,8 @@ class HtmlParser extends StatelessWidget {
   }
 
   static StyledElement _applyExternalCss(
-    Map<String, Map<String, List<css.Expression>>> declarations,
-    StyledElement tree,
-  ) {
+      Map<String, Map<String, List<css.Expression>>> declarations,
+      StyledElement tree,) {
     declarations.forEach((key, style) {
       try {
         if (tree.matchesSelector(key)) {
@@ -252,10 +257,8 @@ class HtmlParser extends StatelessWidget {
     return tree;
   }
 
-  static StyledElement _applyInlineStyles(
-    StyledElement tree,
-    OnCssParseError? errorHandler,
-  ) {
+  static StyledElement _applyInlineStyles(StyledElement tree,
+      OnCssParseError? errorHandler,) {
     if (tree.attributes.containsKey("style")) {
       final newStyle = inlineCssToStyle(
         tree.attributes['style'],
@@ -275,10 +278,8 @@ class HtmlParser extends StatelessWidget {
   /// [applyCustomStyles] applies the [CSS3] objects
   /// passed into the [HTML5] widget onto the [StyledElement]
   /// tree, no cascading of styles is done at this point.
-  static StyledElement _applyCustomStyles(
-    Map<String, CSS3> style,
-    StyledElement tree,
-  ) {
+  static StyledElement _applyCustomStyles(Map<String, CSS3> style,
+      StyledElement tree,) {
     style.forEach((key, style) {
       try {
         if (tree.matchesSelector(key)) {
@@ -296,10 +297,8 @@ class HtmlParser extends StatelessWidget {
   /// [_cascadeStyles] cascades all of the inherited styles
   /// down the tree, applying them to each child that doesn't
   /// specify a different style.
-  static StyledElement _cascadeStyles(
-    Map<String, CSS3> style,
-    StyledElement tree,
-  ) {
+  static StyledElement _cascadeStyles(Map<String, CSS3> style,
+      StyledElement tree,) {
     for (var child in tree.children) {
       child.style = tree.style.copyOnlyInherited(child.style);
       _cascadeStyles(style, child);
@@ -311,12 +310,10 @@ class HtmlParser extends StatelessWidget {
   /// [styleTree] takes the lexed [StyleElement] tree
   /// and applies external, inline, and custom CSS/Flutter
   /// styles, and then cascades the styles down the tree.
-  static StyledElement styleTree(
-    StyledElement tree,
-    dom.Element htmlData,
-    Map<String, CSS3> style,
-    OnCssParseError? onCssParseError,
-  ) {
+  static StyledElement styleTree(StyledElement tree,
+      dom.Element htmlData,
+      Map<String, CSS3> style,
+      OnCssParseError? onCssParseError,) {
     final declarations = _getExternalCssDeclarations(
       htmlData.getElementsByTagName("style"),
       onCssParseError,
@@ -336,10 +333,8 @@ class HtmlParser extends StatelessWidget {
   /// so all [BlockElement]s are on the first level,
   /// redundant levels are collapsed, empty elements
   /// are removed, and specialty elements are processed.
-  static StyledElement processTree(
-    StyledElement tree,
-    double devicePixelRatio,
-  ) {
+  static StyledElement processTree(StyledElement tree,
+      double devicePixelRatio,) {
     //...
     tree = _processInternalWhitespace(tree);
     tree = _processInlineWhitespace(tree);
@@ -401,10 +396,12 @@ class HtmlParser extends StatelessWidget {
     //...
     return (url, context, attributes, element) {
       if (url?.startsWith("#") == true) {
-        final anchorContext = AnchorKey.forId(
+        final anchorContext = AnchorKey
+            .forId(
           key,
           url!.substring(1),
-        )?.currentContext;
+        )
+            ?.currentContext;
         if (anchorContext != null) {
           Scrollable.ensureVisible(anchorContext);
         }
@@ -448,10 +445,8 @@ class HtmlParser extends StatelessWidget {
   /// and replaces any instance of two or more spaces with a
   /// single space, according to the w3's HTML whitespace
   /// processing specification linked to above.
-  static StyledElement _processInlineWhitespaceRecursive(
-    StyledElement tree,
-    Context<bool> keepLeadingSpace,
-  ) {
+  static StyledElement _processInlineWhitespaceRecursive(StyledElement tree,
+      Context<bool> keepLeadingSpace,) {
     if (tree is TextContentElement) {
       /// initialize indices to negative numbers to make
       /// conditionals a little easier
@@ -606,8 +601,7 @@ class HtmlParser extends StatelessWidget {
 
   /// [_processListCounters] adds the appropriate counter values
   /// to each StyledElement on the tree.
-  static StyledElement _processCounters(
-    StyledElement tree, [
+  static StyledElement _processCounters(StyledElement tree, [
     ListQueue<Counter>? counters,
   ]) {
     // Add the counters for the current scope.
@@ -626,7 +620,7 @@ class HtmlParser extends StatelessWidget {
         tree.counters
             .lastWhereOrNull<Counter>(
               (counter) => counter.name == counterName,
-            )
+        )
             ?.increment(increment ?? 1);
 
         final check = !tree.style.counterReset!.containsKey(counterName);
@@ -634,7 +628,7 @@ class HtmlParser extends StatelessWidget {
           counters
               ?.lastWhereOrNull<Counter>(
                 (counter) => counter.name == counterName,
-              )
+          )
               ?.increment(increment ?? 1);
         }
       });
@@ -823,10 +817,10 @@ class HtmlParser extends StatelessWidget {
         toRemove.add(child);
       } else if (child is TextContentElement &&
           ((tree.name == "body" &&
-                  (index == 0 ||
-                      index + 1 == tree.children.length ||
-                      tree.children[index - 1].style.display == Display.block ||
-                      tree.children[index + 1].style.display == Display.block)) ||
+              (index == 0 ||
+                  index + 1 == tree.children.length ||
+                  tree.children[index - 1].style.display == Display.block ||
+                  tree.children[index + 1].style.display == Display.block)) ||
               tree.name == "ul") &&
           child.text!.replaceAll(' ', '').isEmpty) {
         toRemove.add(child);
@@ -857,10 +851,8 @@ class HtmlParser extends StatelessWidget {
 
   /// [_calculateRelativeValues] converts rem values to px
   /// sizes and then applies relative calculations
-  static StyledElement _calculateRelativeValues(
-    StyledElement tree,
-    double devicePixelRatio,
-  ) {
+  static StyledElement _calculateRelativeValues(StyledElement tree,
+      double devicePixelRatio,) {
     double remSize = (tree.style.fontSize?.value ?? FontSize.medium.value);
     if (tree.style.fontSize?.unit == Unit.rem) {
       tree.style.fontSize = FontSize(FontSize.medium.value * remSize);
@@ -874,11 +866,9 @@ class HtmlParser extends StatelessWidget {
 
   /// This is the recursive worker function for
   /// [_calculateRelativeValues]
-  static void _applyRelativeValuesRecursive(
-    StyledElement tree,
-    double remFontSize,
-    double devicePixelRatio,
-  ) {
+  static void _applyRelativeValuesRecursive(StyledElement tree,
+      double remFontSize,
+      double devicePixelRatio,) {
     //...
     assert(tree.style.fontSize != null);
     final parentFontSize = tree.style.fontSize!.value;
@@ -904,7 +894,7 @@ class HtmlParser extends StatelessWidget {
             break;
           case Unit.px:
           case Unit.auto:
-            //Ignore
+          //Ignore
             break;
         }
       }
@@ -955,13 +945,13 @@ extension IterateLetters on String {
 }
 
 typedef OnTap = void Function(
-  String? url,
-  RenderContext context,
-  Map<String, String> attributes,
-  dom.Element? element,
-);
+    String? url,
+    RenderContext context,
+    Map<String, String> attributes,
+    dom.Element? element,
+    );
 
 typedef OnCssParseError = String? Function(
-  String css,
-  List<css_parser.Message> errors,
-);
+    String css,
+    List<css_parser.Message> errors,
+    );
